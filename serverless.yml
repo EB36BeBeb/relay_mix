@@ -1,0 +1,41 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: ebebworkspace
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: relaymix-api
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: relaymix-api
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: ap-northeast-1
+
+functions:
+  download:
+    handler: handlers.download
+    events:
+      - httpApi:
+          path: /download
+          method: post
+          
+  newcode:
+    handler: handlers.newcode
+    events:
+      - httpApi:
+          path: /newcode
+          method: post
+
+  upload:
+    handler: handlers.upload
+    events:
+      - httpApi:
+          path: /upload
+          method: post
+
+  verifycode:
+    handler: handlers.verifycode
+    events:
+      - httpApi:
+          path: /verifycode
+          method: get
+
