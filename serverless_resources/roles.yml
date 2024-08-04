@@ -1,0 +1,73 @@
+Resources:
+    RelayMixDynamoRW:
+      Type: AWS::IAM::Role
+      Properties:
+        # Path: /my/cust/path/
+        RoleName: ${opt:stage, 'dev'}_RelayMixDynamoRW
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: LambdaLogRole
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                    - logs:TagResource
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - '*'
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                    - logs:TagResource
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*'
+          - PolicyName: ${opt:stage, 'dev'}_RelayMixDynamodbRW
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:BatchWriteItem
+                    - dynamodb:PutItem
+                    - dynamodb:GetItem
+                    - dynamodb:Scan
+                    - dynamodb:Query
+                    - dynamodb:UpdateItem
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:dynamodb'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'table/${self:custom.tables.${opt:stage, "dev"}}'
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:dynamodb'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'table/${self:custom.tables.${opt:stage, "dev"}}/index/*'

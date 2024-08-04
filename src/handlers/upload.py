@@ -15,7 +15,16 @@ fail_response = {
             'message': 'File too large'
         })
     }
-table = 'relay_mix_code_table'
+
+try:
+    table_name = os.environ["TABLE_NAME"]
+except:
+    table_name = "dev-relay_mix_code_table"
+ 
+try:  
+    bucket_name = os.environ["BUCKET_NAME"]
+except:
+    bucket_name = "dev-relay_mix_file_storage"
 
 def get_presigned_url(bucket_name, key):
     s3_client = boto3.client('s3')
@@ -26,13 +35,13 @@ def get_presigned_url(bucket_name, key):
 def lambda_handler(event, context):
     # file = json.loads(event['body'])['file']
     data = event["body"]
-    if int(data['filesize']) > 40*1024*1024:
+    if int(data['filesize']) > 40*1024*1024: # 40MB max
         return fail_response
 
     code = data['current_code']
     # Get Information from ddb
     ddb_client = boto3.client('dynamodb')
-    res = ddb_client.get_item(TableName=table,Key = {'code':{'S':code}})
+    res = ddb_client.get_item(TableName=table_name,Key = {'code':{'S':code}})
     try:
         id = res["Item"]["mix_id"]["S"]
         order = res["Item"]["order"]["N"]
@@ -53,9 +62,8 @@ def lambda_handler(event, context):
     file_name = f"{cut}-{id}-{order}-{final}{file_extension}"
     
     # Return the presigned URL and success response
-    s3_bucket_name = 'relay-mix-file-storage'
     s3_key = f"uploads/{file_name}"
-    presigned_url = get_presigned_url(s3_bucket_name, s3_key)
+    presigned_url = get_presigned_url(bucket_name, s3_key)
     if not is_final:
         query_and_update_table(id,int(order),'next_code',data["code"],'next_is_final',data["checkbox"])
     print(presigned_url)
@@ -79,7 +87,7 @@ def query_and_update_table(query_partition_value,query_sort_value, update_key1, 
     dynamodb = boto3.resource('dynamodb')
 
     # Get the table resource
-    table = dynamodb.Table("relay_mix_code_table")
+    table = dynamodb.Table(table_name)
 
     # Define the query parameters
     query_params = {
@@ -112,7 +120,7 @@ def query_and_update_table_single(query_partition_value,query_sort_value, update
     dynamodb = boto3.resource('dynamodb')
 
     # Get the table resource
-    table = dynamodb.Table("relay_mix_code_table")
+    table = dynamodb.Table(table_name)
 
     # Define the query parameters
     query_params = {

@@ -1,0 +1,26 @@
+Resources:
+    RelayMixCodeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tables.${opt:stage, 'dev'}}
+        AttributeDefinitions:
+          - AttributeName: code
+            AttributeType: S
+          - AttributeName: mix_id
+            AttributeType: S
+          - AttributeName : order
+            AttributeType: N
+        KeySchema:
+          - AttributeName: code
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: mix_id-order-index
+            KeySchema:
+              - AttributeName: mix_id
+                KeyType: HASH
+              - AttributeName: order
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        # Set the capacity to auto-scale
+        BillingMode: PAY_PER_REQUEST
