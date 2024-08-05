@@ -1,0 +1,45 @@
+Resources:
+    RelayMixBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.buckets.${opt:stage, 'dev'}}
+        AccessControl: Private
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - HEAD
+            #   ExposeHeaders:
+            #     - 'x-amz-server-side-encryption'
+            #     - 'x-amz-request-id'
+            #     - 'x-amz-id-2'
+              MaxAge: 3000
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          IgnorePublicAcls: true
+          BlockPublicPolicy: true
+          RestrictPublicBuckets: true
+
+    # RelayMixBucketPolicy:
+    #   Type: AWS::S3::BucketPolicy
+    #   Properties:
+    #     Bucket: !Ref RelayMixBucket
+    #     PolicyDocument:
+    #       Version: '2012-10-17'
+    #       Statement:
+    #         - Effect: Allow
+    #           Principal: '*'
+    #           Action:
+    #             - 's3:Get*'
+    #             - 's3:List*'
+    #             - 's3:Put*'
+    #           Resource: 
+    #             - 'arn:aws:s3:::${RelayMixBucket}'
+    #             - 'arn:aws:s3:::${RelayMixBucket}/*'

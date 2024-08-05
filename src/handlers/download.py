@@ -11,7 +11,7 @@ except:
 try:  
     bucket_name = os.environ["BUCKET_NAME"]
 except:
-    bucket_name = "dev-relay_mix_file_storage"
+    bucket_name = "dev-relay-mix-file-storage"
 
 def get_s3_directory_structure(prefix):
     s3 = boto3.client('s3')

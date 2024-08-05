@@ -19,8 +19,8 @@ custom:
     dev: 'dev-relay_mix_code_table'
     prod: 'prod-relay_mix_code_table'
   buckets:
-    dev: 'dev-relay_mix_file_storage'
-    prod: 'prod-relay_mix_file_storage'
+    dev: 'dev-relay-mix-file-storage'
+    prod: 'prod-relay-mix-file-storage'
 
 functions:
   download:
@@ -66,9 +66,40 @@ functions:
       - httpApi:
           path: /verifycode
           method: get
+          
+  fileprocessor:
+    handler: src.handlers.fileprocessor.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    events:
+      - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+            - suffix: .mp3
+          existing: true
 
+  finalize:
+    handler: src.handlers.finalize.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    events:
+      - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: processed_front/
+            - suffix: .mp3
+          existing: true
+          
 resources:
   - ${file(serverless_resources/dynamodb.yml)}
+  - ${file(serverless_resources/s3.yml)}
   - ${file(serverless_resources/roles.yml)}
 
 package:

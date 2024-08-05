@@ -24,7 +24,7 @@ except:
 try:  
     bucket_name = os.environ["BUCKET_NAME"]
 except:
-    bucket_name = "dev-relay_mix_file_storage"
+    bucket_name = "dev-relay-mix-file-storage"
 
 def get_presigned_url(bucket_name, key):
     s3_client = boto3.client('s3')
