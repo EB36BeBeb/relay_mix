@@ -71,3 +71,27 @@ Resources:
                         - Ref: 'AWS::Region'
                         - Ref: 'AWS::AccountId'
                         - 'table/${self:custom.tables.${opt:stage, "dev"}}/index/*'
+                        
+          - PolicyName: ${opt:stage, 'dev'}_RelayMixS3RW
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:s3::'  
+                        - '${self:custom.buckets.${opt:stage, "dev"}}/*'
+                - Effect: Allow
+                  Action:
+                    - s3:ListBucket
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:s3::'  
+                        - '${self:custom.buckets.${opt:stage, "dev"}}'

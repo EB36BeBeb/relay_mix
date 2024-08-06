@@ -29,6 +29,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /download
@@ -40,6 +42,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /newcode
@@ -51,6 +55,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /upload
@@ -62,6 +68,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /verifycode
@@ -73,6 +81,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 1024
+    timeout: 600
     events:
       - s3:
           bucket: ${self:provider.environment.BUCKET_NAME}
@@ -88,6 +98,8 @@ functions:
       TABLE_NAME: ${self:provider.environment.TABLE_NAME}
       BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
     role: RelayMixDynamoRW
+    memorySize: 1024
+    timeout: 900
     events:
       - s3:
           bucket: ${self:provider.environment.BUCKET_NAME}
