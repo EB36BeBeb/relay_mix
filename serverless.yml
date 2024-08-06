@@ -8,34 +8,113 @@ service: relaymix-api
 provider:
   name: aws
   runtime: python3.12
+  stage: ${opt:stage, 'dev'}
   region: ap-northeast-1
+  environment:
+    TABLE_NAME: ${self:custom.tables.${opt:stage, 'dev'}}
+    BUCKET_NAME: ${self:custom.buckets.${opt:stage, 'dev'}}
+
+custom:
+  tables:
+    dev: 'dev-relay_mix_code_table'
+    prod: 'prod-relay_mix_code_table'
+  buckets:
+    dev: 'dev-relay-mix-file-storage'
+    prod: 'prod-relay-mix-file-storage'
 
 functions:
   download:
-    handler: handlers.download
+    handler: src.handlers.download.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /download
           method: post
           
   newcode:
-    handler: handlers.newcode
+    handler: src.handlers.newcode.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /newcode
           method: post
 
   upload:
-    handler: handlers.upload
+    handler: src.handlers.upload.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /upload
           method: post
 
   verifycode:
-    handler: handlers.verifycode
+    handler: src.handlers.verifycode.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 512
+    timeout: 10
     events:
       - httpApi:
           path: /verifycode
           method: get
+          
+  fileprocessor:
+    handler: src.handlers.fileprocessor.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 1024
+    timeout: 600
+    events:
+      - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+            - suffix: .mp3
+          existing: true
 
+  finalize:
+    handler: src.handlers.finalize.lambda_handler
+    environment:
+      TABLE_NAME: ${self:provider.environment.TABLE_NAME}
+      BUCKET_NAME: ${self:provider.environment.BUCKET_NAME}
+    role: RelayMixDynamoRW
+    memorySize: 1024
+    timeout: 900
+    events:
+      - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: processed_front/
+            - suffix: .mp3
+          existing: true
+          
+resources:
+  - ${file(serverless_resources/dynamodb.yml)}
+  - ${file(serverless_resources/s3.yml)}
+  - ${file(serverless_resources/roles.yml)}
+
+package:
+  patterns:
+    - '!**'
+    - 'src/handlers/*.py'

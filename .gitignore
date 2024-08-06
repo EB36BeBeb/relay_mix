@@ -1,2 +1,4 @@
 .relay_mix_venv/
 .serverless/
+*.pyc
+node_modules/*

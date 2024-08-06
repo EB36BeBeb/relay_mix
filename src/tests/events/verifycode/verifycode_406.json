@@ -12,7 +12,7 @@
     "Header2": "value1,value2"
   },
   "queryStringParameters": {
-      "code": "milliani"
+      "code": "API_TEST_EXPIRED"
   },
   "requestContext": {
     "accountId": "123456789012",

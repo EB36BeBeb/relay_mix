@@ -58,7 +58,7 @@
     "timeEpoch": 1583348638390
   },
   "body": {
-      "fileName" : "FINAL_TEST"
+      "fileName" : "API_TEST"
   },
   "pathParameters": {
     "parameter1": "value1"

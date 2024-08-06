@@ -12,7 +12,7 @@
     "Header2": "value1,value2"
   },
   "queryStringParameters": {
-      "code": "NICECODE2"
+      "code": "API_TEST"
   },
   "requestContext": {
     "accountId": "123456789012",

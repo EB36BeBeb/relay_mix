@@ -1,5 +1,6 @@
 import json
 import base64
+import os
 from urllib.parse import parse_qs
 import boto3
 
@@ -10,7 +11,11 @@ def lambda_handler(event, context):
     new_code = body["newCode"]
     mix_name = body["mixName"]
     
-    table_name = 'relay_mix_code_table'
+    # 'get os.environr or dev-relay_mix_code_table for default '
+    try:
+        table_name = os.environ["TABLE_NAME"]
+    except:
+        table_name = "dev-relay_mix_code_table"
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
     # Specify the key for the item you want to update

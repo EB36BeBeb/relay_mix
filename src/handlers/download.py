@@ -1,8 +1,19 @@
 import json
 import boto3
 from datetime import datetime, timedelta
+import os
 
-def get_s3_directory_structure(bucket_name, prefix):
+try:
+    table_name = os.environ["TABLE_NAME"]
+except:
+    table_name = "dev-relay_mix_code_table"
+ 
+try:  
+    bucket_name = os.environ["BUCKET_NAME"]
+except:
+    bucket_name = "dev-relay-mix-file-storage"
+
+def get_s3_directory_structure(prefix):
     s3 = boto3.client('s3')
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix = prefix)
     directory_structure = {}
@@ -19,10 +30,9 @@ def get_s3_directory_structure(bucket_name, prefix):
 
 def lambda_handler(event, context):
     print(event)
-    bucket_name = "relay-mix-file-storage"
     target_mix = event["body"]["fileName"]+".mp3"
     result = {}
-    directory_structure = get_s3_directory_structure(bucket_name,"finalized/")
+    directory_structure = get_s3_directory_structure("finalized/")
     for single_object in directory_structure["finalized"]:
         if single_object[0] == target_mix:
             signed_url = boto3.client('s3').generate_presigned_url(

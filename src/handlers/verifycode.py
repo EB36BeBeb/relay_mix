@@ -1,14 +1,24 @@
 import json
 import boto3
+import os
 
-table = 'relay_mix_code_table'
+try:
+    table_name = os.environ["TABLE_NAME"]
+except:
+    table_name = "dev-relay_mix_code_table"
+ 
+try:  
+    bucket_name = os.environ["BUCKET_NAME"]
+except:
+    bucket_name = "dev-relay-mix-file-storage"
+    
 def lambda_handler(event, context):
     print(event)
     # TODO implement
     code = event["queryStringParameters"]["code"]
     ddb_client = boto3.client('dynamodb')
     
-    res = ddb_client.get_item(TableName=table,Key = {'code':{'S':code}})
+    res = ddb_client.get_item(TableName=table_name,Key = {'code':{'S':code}})
     print(res)
     try:
         id = res["Item"]["mix_id"]["S"]
@@ -43,7 +53,7 @@ def get_presigned_download_url(filename):
     try:
         response = s3.generate_presigned_url(
             'get_object',
-            Params={'Bucket': 'relay-mix-file-storage', 'Key': "processed_behind/"+filename, "ResponseContentDisposition": "attachment; filename=StartWithThisFile.mp3"},
+            Params={'Bucket': bucket_name, 'Key': "processed_behind/"+filename, "ResponseContentDisposition": "attachment; filename=StartWithThisFile.mp3"},
             ExpiresIn=300
         )
         return response
