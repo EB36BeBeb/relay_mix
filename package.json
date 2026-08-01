@@ -2,5 +2,9 @@
   "dependencies": {
     "serverless-plugin-existing-s3": "^2.4.0",
     "serverless-s3-sync": "^3.3.0"
+  },
+  "overrides": {
+    "tar": "^7.5.21",
+    "adm-zip": "^0.6.0"
   }
 }
